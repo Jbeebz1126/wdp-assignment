@@ -29,3 +29,22 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* --- Full-width layout: kill default gaps --- */
+html, body { margin: 0; padding: 0; }
+body { overflow-x: hidden; }
+main { padding: 0; }
+
+/* --- Navigation bar --- */
+.site-nav { background-color: #0b1d3a; padding: 0.5rem 1rem; }
+.site-nav .navbar-brand,
+.site-nav .nav-link { color: #ffffff; }
+.site-nav .nav-link:hover,
+.site-nav .navbar-brand:hover { color: #f8bd08; }
+
+/* --- Footer --- */
+.site-footer { background-color: #0b1d3a; color: #ffffff; text-align: center; padding: 1rem; }
+.site-footer a { color: #ffffff; text-decoration: none; margin: 0 0.5rem; }
+.site-footer a:hover { color: #f8bd08; }
+.footer-icons { margin-top: 0.5rem; }
+.footer-icons a { font-size: 1.2rem; }
