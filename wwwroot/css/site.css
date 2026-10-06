@@ -48,3 +48,63 @@ main { padding: 0; }
 .site-footer a:hover { color: #f8bd08; }
 .footer-icons { margin-top: 0.5rem; }
 .footer-icons a { font-size: 1.2rem; }
+
+/* --- Hero with parallax fixed background --- */
+.hero {
+  background-image: url('/images/hero-bg.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+}
+.hero-heading {
+  font-family: 'Anton', sans-serif;
+  background-image: linear-gradient(to right, brown, brown, yellow, white, yellow, brown, brown);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 1px; -webkit-text-stroke-color: brown;
+  padding: 9vw 2vw 0vw 2vw; text-align: center; font-size: 7vw; margin: 0;
+}
+.hero-intro {
+  font-family: 'Montserrat', sans-serif; font-size: 2vw;
+  text-align: center; color: #fff; max-width: 60ch; padding: 2vw;
+}
+
+/* --- Content blocks --- */
+.ai-block {
+  display: flex; flex-wrap: wrap; gap: 2vw;
+  align-items: center; justify-content: center;
+  padding: 4vw 2vw; background-color: #0b1d3a;
+}
+.block-text { flex: 1 1 300px; max-width: 500px; color: #fff; }
+.block-heading {
+  font-family: 'Anton', sans-serif; color: #f8bd08;
+  font-size: 4vw; text-shadow: 2px 2px 0px navy, 2px 2px 4px white;
+}
+.block-desc { font-family: 'Lato', sans-serif; font-size: 1.5vw; }
+.read-more {
+  display: inline-block; background: #f8bd08; color: #0b1d3a;
+  padding: 6px 14px; border-radius: 4px; text-decoration: none; font-weight: bold;
+}
+.block-items { flex: 1 1 300px; display: flex; gap: 1vw; flex-wrap: wrap; justify-content: center; }
+
+/* --- Square blocks with hover caption --- */
+.square {
+  position: relative; width: 220px; height: 220px;
+  overflow: hidden; text-decoration: none;
+}
+.square img { width: 100%; height: 100%; object-fit: cover; }
+.square:hover img { opacity: 0.9; transition: 2s ease; }
+.square .caption {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 10px; background: rgba(0,0,0,0.6); color: #fff;
+  font: normal 1.2vw arial; opacity: 0; transition: opacity 0.4s ease;
+}
+.square:hover .caption { opacity: 1; }
+
+/* --- Reveal when fully in viewport --- */
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
