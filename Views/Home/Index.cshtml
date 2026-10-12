@@ -66,3 +66,20 @@
     </div>
 </section>
 
+<section class="upload-block reveal">
+    <h2 class="upload-heading">Upload AI Images</h2>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <a class="upload-text" asp-controller="AIImages" asp-action="Create">
+            Click here to upload a new AI image
+        </a>
+    }
+    else
+    {
+        <p class="upload-text">
+            Please <a asp-area="Identity" asp-page="/Account/Login">login</a>
+            or <a asp-area="Identity" asp-page="/Account/Register">register</a>
+            to upload your AI images.
+        </p>
+    }
+</section>
