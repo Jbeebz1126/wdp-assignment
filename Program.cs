@@ -14,6 +14,27 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Session: remembers which images the user has liked during this login
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Wipe the liked list on logout, so the user can like again after logging back in
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnSigningOut = context =>
+    {
+        context.HttpContext.Session.Clear();
+        return Task.CompletedTask;
+    };
+});
+
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,13 +45,12 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -50,13 +70,11 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-    // Create the Admin role if it doesn't exist
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
 
-    // Create the admin user if it doesn't exist
     string adminEmail = "admin@asp.net";
     string adminPassword = "Admin@123";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
@@ -72,4 +90,6 @@ using (var scope = app.Services.CreateScope())
         await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }
+
 app.Run();
+

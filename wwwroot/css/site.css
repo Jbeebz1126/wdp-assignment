@@ -155,3 +155,43 @@ main { padding: 0; }
 .form-preview img { width: 100%; height: auto; border: 1px solid #fff; }
 .back-link { color: #ddd; }
 .back-link:hover { color: #f8bd08; }
+
+/* --- AI Images list page --- */
+.list-hero {
+  background-image: url('/images/hero-bg.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+  padding-bottom: 3vw;
+}
+.list-upload-link, .list-upload-link a {
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2vw;
+  text-decoration: none;
+}
+.list-upload-link a { color: #f8bd08; }
+
+.image-row { display: flex; flex-wrap: wrap; }
+.image-row.reverse { flex-direction: row-reverse; }
+.row-orange { background: linear-gradient(to bottom, #ff9933, #ffe6cc, white, white); }
+.row-blue { background: linear-gradient(to bottom, #3333ff, #ccccff, white, white); }
+
+.image-row-pic { flex: 1 1 35%; min-height: 300px; }
+.image-row-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.image-row-text { flex: 1 1 60%; padding: 2vw; }
+
+.image-row-heading {
+  color: navy;
+  text-shadow: 2px 2px 0px white, 2px 2px 4px navy;
+  font-family: "Oxygen", sans-serif;
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 20px;
+}
+.image-row-prompt { font-family: Arial, sans-serif; color: black; font-size: 1vw; }
+.image-row-buttons .btn { margin-right: 4px; }
+
+.empty-list { text-align: center; padding: 3vw; margin: 0; background: #0b1d3a; color: #fff; }

@@ -20,6 +20,7 @@ namespace WDP_Assignment.Controllers
 
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
+        private const string LikedKey = "LikedImageIds";
 
         public AIImagesController(ApplicationDbContext context, IWebHostEnvironment env)
         {
@@ -27,13 +28,51 @@ namespace WDP_Assignment.Controllers
             _env = env;
         }
 
-        // GET: AIImages
+        // GET: AIImages  (sorted by likes, highest first)
         public async Task<IActionResult> Index()
         {
-            return View(await _context.AIImages.ToListAsync());
+            var images = await _context.AIImages
+                .AsNoTracking()
+                .OrderByDescending(i => i.Like)
+                .ThenByDescending(i => i.UploadDate)
+                .ToListAsync();
+
+            // Mark which images this user can still like in this login
+            var liked = GetLikedIds();
+            foreach (var img in images)
+            {
+                img.canIncreaseLike = !liked.Contains(img.Id);
+            }
+
+            return View(images);
+        }
+
+        // POST: AIImages/Like/5
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Like(int id)
+        {
+            var liked = GetLikedIds();
+            if (!liked.Contains(id))
+            {
+                var image = await _context.AIImages.FindAsync(id);
+                if (image != null)
+                {
+                    image.Like++;
+                    await _context.SaveChangesAsync();
+
+                    liked.Add(id);
+                    HttpContext.Session.SetString(LikedKey, string.Join(",", liked));
+                }
+            }
+
+            // Return to the list and jump to the liked image (#img-5)
+            return RedirectToAction(nameof(Index), null, "img-" + id);
         }
 
         // GET: AIImages/Details/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -54,7 +93,6 @@ namespace WDP_Assignment.Controllers
         [Authorize]
         public IActionResult Create()
         {
-            // Pre-fill the read-only fields
             var model = new AIImage { UploadDate = DateTime.Now, Like = 0 };
             return View(model);
         }
@@ -65,13 +103,11 @@ namespace WDP_Assignment.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Prompt,ImageGenerator")] AIImage aIImage, IFormFile? ImageFile)
         {
-            // The server sets these, so users can't change them
             aIImage.UploadDate = DateTime.Now;
             aIImage.Like = 0;
             aIImage.canIncreaseLike = true;
             ModelState.Remove(nameof(AIImage.Filename));
 
-            // Validate the uploaded file
             if (ImageFile == null || ImageFile.Length == 0)
             {
                 ModelState.AddModelError(string.Empty, "Please choose an image file to upload.");
@@ -96,7 +132,6 @@ namespace WDP_Assignment.Controllers
 
             try
             {
-                // Save the file to wwwroot/uploads with a unique name
                 var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
                 Directory.CreateDirectory(uploadsFolder);
 
@@ -191,7 +226,6 @@ namespace WDP_Assignment.Controllers
         }
 
         // POST: AIImages/Delete/5
-                // POST: AIImages/Delete/5
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -200,7 +234,6 @@ namespace WDP_Assignment.Controllers
             var aIImage = await _context.AIImages.FindAsync(id);
             if (aIImage != null)
             {
-                // Remove the uploaded file too, if it exists
                 if (!string.IsNullOrEmpty(aIImage.Filename))
                 {
                     try
@@ -222,6 +255,26 @@ namespace WDP_Assignment.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // Reads the list of liked image IDs stored in the session
+        private List<int> GetLikedIds()
+        {
+            var raw = HttpContext.Session.GetString(LikedKey);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return new List<int>();
+            }
+
+            return raw.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(s => int.TryParse(s, out var n) ? n : -1)
+                      .Where(n => n > 0)
+                      .ToList();
+        }
+
+        private bool AIImageExists(int id)
+        {
+            return _context.AIImages.Any(e => e.Id == id);
         }
     }
 }
