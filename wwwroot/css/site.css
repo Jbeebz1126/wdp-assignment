@@ -128,3 +128,30 @@ main { padding: 0; }
   text-decoration: none;
 }
 .upload-text a { color: #f8bd08; }
+
+/* --- Form pages (Create / Edit) --- */
+.form-page {
+  background-image: url('/images/hero-bg.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  padding: 0 2vw 3vw 2vw;
+}
+.form-heading {
+  font-family: 'Anton', sans-serif;
+  text-shadow: 4px 4px 0px navy, 4px 4px 8px white;
+  padding: 3vw 0vw 2vw 0vw;
+  text-align: center;
+  color: #f8bd08;
+  font-size: 4vw;
+  margin: 0;
+}
+.form-layout { display: flex; flex-wrap: wrap; gap: 2vw; justify-content: center; }
+.ai-form { flex: 1 1 400px; max-width: 700px; }
+.ai-form .form-label { color: #fff; font-family: 'Montserrat', sans-serif; margin-bottom: 0.2rem; }
+.ai-form input[readonly] { background-color: #e9ecef; }
+.form-preview { flex: 1 1 300px; max-width: 400px; }
+.form-preview img { width: 100%; height: auto; border: 1px solid #fff; }
+.back-link { color: #ddd; }
+.back-link:hover { color: #f8bd08; }
