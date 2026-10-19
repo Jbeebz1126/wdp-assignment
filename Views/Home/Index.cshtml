@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<WDP_Assignment.Models.AIImage>
+
+@{
     ViewData["Title"] = "Home";
 }
 
@@ -66,7 +68,7 @@
     </div>
 </section>
 
-<section class="upload-block reveal">
+<section class="upload-block">
     <h2 class="upload-heading">Upload AI Images</h2>
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
@@ -81,5 +83,18 @@
             or <a asp-area="Identity" asp-page="/Account/Register">register</a>
             to upload your AI images.
         </p>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="gallery-grid">
+            @foreach (var item in Model)
+            {
+                <a class="gallery-tile" asp-controller="AIImages" asp-action="Index" asp-fragment="img-@item.Id">
+                    <img src="/uploads/@item.Filename" alt="@item.Prompt" />
+                    <span class="gallery-label">@item.ImageGenerator</span>
+                </a>
+            }
+        </div>
     }
 </section>
