@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "Compare AI Tools";
+}
+
+<section class="compare-page">
+    <h1 class="hero-heading">Compare AI Tools</h1>
+    <p class="compare-intro">
+        Six AI tools that are changing healthcare. Filter them by what they do,
+        or pick any two to compare side by side.
+    </p>
+
+    <div class="filter-bar">
+        <button type="button" class="filter-btn active" data-filter="all">All</button>
+        <button type="button" class="filter-btn" data-filter="diagnostics">AI Diagnostics</button>
+        <button type="button" class="filter-btn" data-filter="assistants">Virtual Assistants</button>
+        <button type="button" class="filter-btn" data-filter="predictive">Predictive Analytics</button>
+    </div>
+
+    <div class="tool-grid">
+
+        <article class="tool-card" id="tool-aidoc"
+                 data-name="Aidoc" data-category="diagnostics" data-category-label="AI Diagnostics"
+                 data-focus="Flagging urgent findings on medical scans"
+                 data-users="Hospital radiology teams"
+                 data-access="Enterprise platform for hospitals">
+            <img src="/images/aidoc.jpg" alt="Medical scan representing Aidoc" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">AI Diagnostics</span>
+                <h3 class="tool-name">Aidoc</h3>
+                <p class="tool-desc">Reads CT and other medical scans in the background and flags urgent findings, such as bleeds or blood clots, so radiologists see the most critical cases first.</p>
+                <a href="https://www.aidoc.com" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+        <article class="tool-card" id="tool-vizai"
+                 data-name="Viz.ai" data-category="diagnostics" data-category-label="AI Diagnostics"
+                 data-focus="Stroke detection and care-team alerts"
+                 data-users="Hospital stroke and specialist teams"
+                 data-access="Enterprise platform for hospitals">
+            <img src="/images/vizai.jpg" alt="Brain scan representing Viz.ai" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">AI Diagnostics</span>
+                <h3 class="tool-name">Viz.ai</h3>
+                <p class="tool-desc">Detects suspected strokes and other time-critical conditions on scans, then alerts the specialist care team on their phones so treatment can start sooner.</p>
+                <a href="https://www.viz.ai" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+        <article class="tool-card" id="tool-ada"
+                 data-name="Ada Health" data-category="assistants" data-category-label="Virtual Assistant"
+                 data-focus="Personal symptom assessment"
+                 data-users="Patients and the general public"
+                 data-access="Consumer mobile app">
+            <img src="/images/ada.jpg" alt="Health app representing Ada Health" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">Virtual Assistant</span>
+                <h3 class="tool-name">Ada Health</h3>
+                <p class="tool-desc">A symptom-assessment app that asks a series of questions about how you feel, then suggests possible causes and what to do next.</p>
+                <a href="https://ada.com" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+        <article class="tool-card" id="tool-symptomate"
+                 data-name="Symptomate" data-category="assistants" data-category-label="Virtual Assistant"
+                 data-focus="Online symptom checking and triage"
+                 data-users="Patients and the general public"
+                 data-access="Web-based symptom checker">
+            <img src="/images/symptomate.jpg" alt="Digital health representing Symptomate" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">Virtual Assistant</span>
+                <h3 class="tool-name">Symptomate</h3>
+                <p class="tool-desc">Infermedica's online symptom checker. Users answer a short interview and receive possible conditions plus advice on the right level of care.</p>
+                <a href="https://symptomate.com" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+        <article class="tool-card" id="tool-tempus"
+                 data-name="Tempus" data-category="predictive" data-category-label="Predictive Analytics"
+                 data-focus="Precision medicine using molecular and clinical data"
+                 data-users="Oncologists and medical researchers"
+                 data-access="Clinical lab and data services">
+            <img src="/images/tempus.jpg" alt="Genomics lab representing Tempus" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">Predictive Analytics</span>
+                <h3 class="tool-name">Tempus</h3>
+                <p class="tool-desc">Combines genomic sequencing with clinical data and AI to help doctors, especially in cancer care, choose treatments matched to each patient.</p>
+                <a href="https://www.tempus.com" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+        <article class="tool-card" id="tool-merative"
+                 data-name="Merative" data-category="predictive" data-category-label="Predictive Analytics"
+                 data-focus="Healthcare data and analytics"
+                 data-users="Health organisations and life-science companies"
+                 data-access="Enterprise software">
+            <img src="/images/merative.jpg" alt="Health data representing Merative" class="tool-img" />
+            <div class="tool-body">
+                <span class="tool-tag">Predictive Analytics</span>
+                <h3 class="tool-name">Merative</h3>
+                <p class="tool-desc">Formerly IBM Watson Health, Merative provides healthcare data, analytics and imaging software that help organisations make better-informed decisions.</p>
+                <a href="https://www.merative.com" target="_blank" class="tool-link">Visit website</a>
+            </div>
+        </article>
+
+    </div>
+
+    <div class="compare-panel">
+        <h2 class="compare-heading">Compare Two Tools</h2>
+        <div class="compare-pickers">
+            <select id="compareA" class="form-select" aria-label="First tool"></select>
+            <span>vs</span>
+            <select id="compareB" class="form-select" aria-label="Second tool"></select>
+        </div>
+        <div id="compareResult" class="compare-result"></div>
+    </div>
+</section>

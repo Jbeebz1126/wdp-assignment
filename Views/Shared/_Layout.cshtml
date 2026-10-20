@@ -34,6 +34,9 @@
                             <a class="nav-link" asp-controller="AIImages" asp-action="Index">AI Images</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Compare">Compare AI Tools</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Contact">Contact</a>
                         </li>
                     </ul>
@@ -51,6 +54,7 @@
         <div class="footer-links">
             <a asp-controller="Home" asp-action="Index">Home</a>
             <a asp-controller="AIImages" asp-action="Index">AI Images</a>
+            <a asp-controller="Home" asp-action="Compare">Compare AI Tools</a>
             <a asp-controller="Home" asp-action="Contact">Contact</a>
         </div>
         <div class="footer-icons">
@@ -68,4 +72,3 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

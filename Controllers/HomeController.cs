@@ -30,7 +30,6 @@ public class HomeController : Controller
         }
         catch (Exception ex)
         {
-            // If the database can't be read, still show the page without the gallery
             _logger.LogError(ex, "Could not load AI images for the home page.");
             images = new List<AIImage>();
         }
@@ -39,6 +38,12 @@ public class HomeController : Controller
     }
 
     public IActionResult Contact()
+    {
+        return View();
+    }
+
+    // Creative page: compare AI healthcare tools
+    public IActionResult Compare()
     {
         return View();
     }
