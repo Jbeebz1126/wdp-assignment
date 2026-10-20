@@ -25,5 +25,6 @@
 
     <ItemGroup>
     <Watch Remove="wwwroot/uploads/**" />
+    <Content Update="wwwroot/uploads/**" Watch="false" />
     </ItemGroup>
 </Project>

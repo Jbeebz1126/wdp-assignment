@@ -282,3 +282,21 @@ main { padding: 0; }
   .contact-text { font-size: 2.4vw; }
 }
 
+/* --- Delete page --- */
+.delete-box {
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Montserrat', sans-serif;
+}
+.delete-question {
+  font-family: 'Anton', sans-serif;
+  text-shadow: 2px 2px 0px navy, 2px 2px 4px white;
+  color: yellow;
+  font-size: 2em;
+  border-bottom: 1px solid yellow;
+  padding-bottom: 0.5rem;
+}
+.delete-details dt { color: #fff; }
+.delete-details dd { color: #ddd; }
+.delete-sep { color: #ddd; margin: 0 6px; }
+

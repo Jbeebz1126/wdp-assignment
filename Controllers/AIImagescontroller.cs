@@ -37,7 +37,6 @@ namespace WDP_Assignment.Controllers
                 .ThenByDescending(i => i.UploadDate)
                 .ToListAsync();
 
-            // Mark which images this user can still like in this login
             var liked = GetLikedIds();
             foreach (var img in images)
             {
@@ -67,7 +66,6 @@ namespace WDP_Assignment.Controllers
                 }
             }
 
-            // Return to the list and jump to the liked image (#img-5)
             return RedirectToAction(nameof(Index), null, "img-" + id);
         }
 
@@ -108,22 +106,7 @@ namespace WDP_Assignment.Controllers
             aIImage.canIncreaseLike = true;
             ModelState.Remove(nameof(AIImage.Filename));
 
-            if (ImageFile == null || ImageFile.Length == 0)
-            {
-                ModelState.AddModelError(string.Empty, "Please choose an image file to upload.");
-            }
-            else
-            {
-                var checkExt = Path.GetExtension(ImageFile.FileName).ToLowerInvariant();
-                if (!AllowedExtensions.Contains(checkExt))
-                {
-                    ModelState.AddModelError(string.Empty, "Only JPG, PNG, GIF or WEBP images are allowed.");
-                }
-                else if (ImageFile.Length > MaxFileSize)
-                {
-                    ModelState.AddModelError(string.Empty, "The image must be 5 MB or smaller.");
-                }
-            }
+            ValidateUpload(ImageFile, required: true);
 
             if (!ModelState.IsValid)
             {
@@ -132,19 +115,7 @@ namespace WDP_Assignment.Controllers
 
             try
             {
-                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
-                Directory.CreateDirectory(uploadsFolder);
-
-                var extension = Path.GetExtension(ImageFile!.FileName).ToLowerInvariant();
-                var uniqueName = Guid.NewGuid().ToString() + extension;
-                var filePath = Path.Combine(uploadsFolder, uniqueName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ImageFile.CopyToAsync(stream);
-                }
-
-                aIImage.Filename = uniqueName;
+                aIImage.Filename = await SaveUploadAsync(ImageFile!);
                 _context.Add(aIImage);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -165,11 +136,14 @@ namespace WDP_Assignment.Controllers
                 return NotFound();
             }
 
-            var aIImage = await _context.AIImages.FindAsync(id);
+            var aIImage = await _context.AIImages.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
             if (aIImage == null)
             {
                 return NotFound();
             }
+
+            // Upload date is automatically set to now (shown read-only)
+            aIImage.UploadDate = DateTime.Now;
             return View(aIImage);
         }
 
@@ -177,34 +151,64 @@ namespace WDP_Assignment.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Prompt,ImageGenerator,UploadDate,Filename,Like,canIncreaseLike")] AIImage aIImage)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Prompt,ImageGenerator")] AIImage input, IFormFile? ImageFile)
         {
-            if (id != aIImage.Id)
+            if (id != input.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var existing = await _context.AIImages.FindAsync(id);
+            if (existing == null)
             {
-                try
-                {
-                    _context.Update(aIImage);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!AIImageExists(aIImage.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            return View(aIImage);
+
+            var originalFilename = existing.Filename;
+            ModelState.Remove(nameof(AIImage.Filename));
+
+            // A new image is optional when editing
+            ValidateUpload(ImageFile, required: false);
+
+            if (!ModelState.IsValid)
+            {
+                input.Filename = originalFilename;
+                input.Like = existing.Like;
+                input.UploadDate = DateTime.Now;
+                return View(input);
+            }
+
+            try
+            {
+                existing.Prompt = input.Prompt;
+                existing.ImageGenerator = input.ImageGenerator;
+                existing.UploadDate = DateTime.Now;
+
+                bool replacedImage = false;
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    existing.Filename = await SaveUploadAsync(ImageFile);
+                    replacedImage = true;
+                }
+
+                await _context.SaveChangesAsync();
+
+                // Only remove the old file once the database has been updated
+                if (replacedImage)
+                {
+                    DeleteUploadFile(originalFilename);
+                }
+
+                return RedirectToAction(nameof(Index), null, "img-" + existing.Id);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Sorry, the changes could not be saved. Please try again.");
+                input.Filename = originalFilename;
+                input.Like = existing.Like;
+                input.UploadDate = DateTime.Now;
+                return View(input);
+            }
         }
 
         // GET: AIImages/Delete/5
@@ -232,29 +236,88 @@ namespace WDP_Assignment.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var aIImage = await _context.AIImages.FindAsync(id);
-            if (aIImage != null)
+            if (aIImage == null)
             {
-                if (!string.IsNullOrEmpty(aIImage.Filename))
-                {
-                    try
-                    {
-                        var filePath = Path.Combine(_env.WebRootPath, "uploads", aIImage.Filename);
-                        if (System.IO.File.Exists(filePath))
-                        {
-                            System.IO.File.Delete(filePath);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // If the file can't be removed, still delete the record
-                    }
-                }
-
-                _context.AIImages.Remove(aIImage);
-                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var filename = aIImage.Filename;
+                _context.AIImages.Remove(aIImage);
+                await _context.SaveChangesAsync();
+                DeleteUploadFile(filename);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Sorry, this image could not be deleted. Please try again.");
+                return View("Delete", aIImage);
+            }
+        }
+
+        // ---------- Helpers ----------
+
+        // Checks the uploaded file's type and size
+        private void ValidateUpload(IFormFile? file, bool required)
+        {
+            if (file == null || file.Length == 0)
+            {
+                if (required)
+                {
+                    ModelState.AddModelError(string.Empty, "Please choose an image file to upload.");
+                }
+                return;
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(string.Empty, "Only JPG, PNG, GIF or WEBP images are allowed.");
+            }
+            else if (file.Length > MaxFileSize)
+            {
+                ModelState.AddModelError(string.Empty, "The image must be 5 MB or smaller.");
+            }
+        }
+
+        // Saves the file to wwwroot/uploads with a unique name and returns that name
+        private async Task<string> SaveUploadAsync(IFormFile file)
+        {
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName).ToLowerInvariant();
+            var filePath = Path.Combine(uploadsFolder, uniqueName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return uniqueName;
+        }
+
+        // Removes a file from wwwroot/uploads; never crashes the site if it can't
+        private void DeleteUploadFile(string? filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return;
+            }
+
+            try
+            {
+                var filePath = Path.Combine(_env.WebRootPath, "uploads", filename);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch (Exception)
+            {
+                // Ignore: the record is already updated/removed
+            }
         }
 
         // Reads the list of liked image IDs stored in the session
@@ -270,11 +333,6 @@ namespace WDP_Assignment.Controllers
                       .Select(s => int.TryParse(s, out var n) ? n : -1)
                       .Where(n => n > 0)
                       .ToList();
-        }
-
-        private bool AIImageExists(int id)
-        {
-            return _context.AIImages.Any(e => e.Id == id);
         }
     }
 }
