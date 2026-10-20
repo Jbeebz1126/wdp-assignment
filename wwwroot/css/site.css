@@ -246,3 +246,39 @@ main { padding: 0; }
   .gallery-label { font-size: 3.5vw; }
 }
 
+/* --- Contact page --- */
+.contact-page {
+  background-image: url('/images/hero-bg.jpg');
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  padding: 0 3vw 4vw 3vw;
+}
+.no-stroke { -webkit-text-stroke-width: 0; }   /* Contact heading: same as Home, minus the outline */
+.contact-row { margin-top: 3vw; }
+.contact-card {
+  height: 100%;
+  background-color: rgba(11, 29, 58, 0.85);
+  border: 1px solid white;
+  box-shadow: 10px 10px 0px 0px #f8f6b0;
+  padding: 1.5rem;
+  text-align: center;
+}
+.contact-subheading {
+  font-family: 'Niconne', cursive;
+  color: yellow;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 0px navy, 2px 2px 2px white;
+  border-bottom: 2px solid yellow;
+  padding-bottom: 0.5rem;
+}
+.contact-text { font-family: Arial, sans-serif; color: yellow; font-size: 1vw; }
+.contact-text a { color: #fff; }
+.contact-text a:hover { color: #f8bd08; }
+
+/* Stacked columns on tablets/phones need bigger text */
+@media (max-width: 767.98px) {
+  .contact-text { font-size: 2.4vw; }
+}
+
