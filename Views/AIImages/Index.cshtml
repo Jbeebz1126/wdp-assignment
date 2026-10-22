@@ -1,65 +1,59 @@
 @model IEnumerable<WDP_Assignment.Models.AIImage>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "AI Images";
+    bool isLoggedIn = User.Identity != null && User.Identity.IsAuthenticated;
+    bool isAdmin = User.IsInRole("Admin");
+    int rowNumber = 0;
 }
 
-<h1>Index</h1>
+<section class="list-hero">
+    <h1 class="hero-heading">List of AI Images</h1>
+    @if (isLoggedIn)
+    {
+        <a class="list-upload-link" asp-action="Create">Click here to upload a new AI image</a>
+    }
+    else
+    {
+        <p class="list-upload-link">
+            Please <a asp-area="Identity" asp-page="/Account/Login">login</a>
+            or <a asp-area="Identity" asp-page="/Account/Register">register</a>
+            to upload your AI images.
+        </p>
+    }
+</section>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Prompt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageGenerator)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UploadDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Filename)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Like)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.canIncreaseLike)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Prompt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageGenerator)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UploadDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Filename)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Like)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.canIncreaseLike)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (!Model.Any())
+{
+    <p class="empty-list">No AI images yet. Log in and upload the first one.</p>
 }
-    </tbody>
-</table>
+
+@foreach (var item in Model)
+{
+    var rowClass = rowNumber % 2 == 0 ? "image-row row-orange" : "image-row row-blue reverse";
+    rowNumber++;
+
+    <article id="img-@item.Id" class="@rowClass">
+        <div class="image-row-pic" data-bg="/uploads/@item.Filename" role="img" aria-label="@item.Prompt"></div>
+        <div class="image-row-text">
+            <h3 class="image-row-heading">@item.ImageGenerator</h3>
+            <p class="image-row-prompt">@item.Prompt</p>
+
+            @if (isLoggedIn)
+            {
+                <div class="image-row-buttons">
+                    <form asp-action="Like" asp-route-id="@item.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary btn-sm" disabled="@(!item.canIncreaseLike)">
+                            Like (@item.Like)
+                        </button>
+                    </form>
+                    @if (isAdmin)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                    }
+                </div>
+            }
+        </div>
+    </article>
+}

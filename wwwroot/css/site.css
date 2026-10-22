@@ -408,3 +408,73 @@ main { padding: 0; }
   .tool-grid { grid-template-columns: 1fr; }
   .compare-table { font-size: 0.85rem; }
 }
+
+    /* 
+   RESPONSIVE + LAYOUT FIXES
+    */
+
+/* Nav: make the template's dark login links and the hamburger icon visible on navy */
+.site-nav .text-dark { color: #fff !important; }
+.site-nav .text-dark:hover { color: #f8bd08 !important; }
+.site-nav .navbar-toggler { border-color: rgba(255, 255, 255, 0.6); }
+.site-nav .navbar-toggler-icon { filter: invert(1); }
+
+/* Home: middle block alternates (images left, text right), like the sample */
+.ai-block.block-reverse { flex-direction: row-reverse; }
+
+/* AI Images list: picture is a background image so it can tile on small screens */
+.image-row-pic {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ---------- Tablet and below: under 768px ---------- */
+@media (max-width: 767.98px) {
+    /* Home hero */
+    .hero-intro { font-size: 3.2vw; }
+
+    /* Home blocks: stack text and images */
+    .ai-block { flex-direction: column; }
+    .ai-block.block-reverse { flex-direction: column-reverse; }
+    .block-text { max-width: 100%; flex: none; }
+    .block-heading { font-size: 7vw; }
+    .block-desc { font-size: 3vw; }
+    .block-items { flex: none; flex-wrap: nowrap; }
+    .square { width: min(42vw, 220px); height: min(42vw, 220px); }
+    .square .caption { font-size: 2.6vw; }
+
+    /* Home upload block */
+    .upload-heading { font-size: 7vw; }
+    .upload-text, .upload-text a { font-size: 3vw; }
+
+    /* AI Images list: image strip on top repeating, text below (blue rows: text first) */
+    .list-upload-link, .list-upload-link a { font-size: 3vw; }
+    .image-row { flex-direction: column; }
+    .image-row.reverse { flex-direction: column-reverse; }
+    .image-row-pic {
+        flex: none;
+        width: 100%;
+        min-height: 240px;
+        background-size: auto 100%;
+        background-repeat: repeat-x;
+        background-position: left center;
+    }
+    .image-row-text { flex: none; width: 100%; padding: 5vw; }
+    .image-row-heading { letter-spacing: 4px; }
+    .image-row-prompt { font-size: 3vw; }
+
+    /* Create / Edit / Delete headings */
+    .form-heading { font-size: 8vw; }
+}
+
+/* ---------- Phone: under 576px ---------- */
+@media (max-width: 575.98px) {
+    .hero-intro { font-size: 3.8vw; }
+    .block-desc { font-size: 3.6vw; }
+    .square .caption { font-size: 3.2vw; }
+    .upload-text, .upload-text a { font-size: 3.6vw; }
+    .list-upload-link, .list-upload-link a { font-size: 3.6vw; }
+    .image-row-prompt { font-size: 3.6vw; }
+    .site-footer { font-size: 0.85rem; }
+}

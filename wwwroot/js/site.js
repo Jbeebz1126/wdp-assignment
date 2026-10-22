@@ -1,15 +1,30 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+﻿// Home page: reveal each content block only when it is fully in view.
+// On small screens a block can be taller than the screen, so it also
+// counts as "in view" once it fills most of the screen.
+document.addEventListener("DOMContentLoaded", function () {
     const blocks = document.querySelectorAll(".reveal");
+    if (blocks.length === 0) {
+        return;
+    }
+
     const observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("visible");
-            } else {
-                entry.target.classList.remove("visible");
-            }
+            const fullyVisible = entry.intersectionRatio >= 0.99;
+            const fillsScreen = entry.rootBounds !== null &&
+                entry.intersectionRect.height >= entry.rootBounds.height * 0.9;
+            entry.target.classList.toggle("visible", fullyVisible || fillsScreen);
         });
-    }, { threshold: 1.0 });  // reveal only when the block is FULLY in view
+    }, { threshold: [0, 0.25, 0.5, 0.75, 0.9, 0.99, 1] });
+
     blocks.forEach(function (b) { observer.observe(b); });
+});
+
+// AI Images list: load each row's picture as a background image,
+// so CSS can make it repeat across the row on small screens
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".image-row-pic[data-bg]").forEach(function (el) {
+        el.style.backgroundImage = "url('" + el.dataset.bg + "')";
+    });
 });
 
 // Create/Edit page: show the chosen image in the preview box
@@ -24,8 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-
-
 
 // Compare AI Tools page: filter buttons and side-by-side comparison
 document.addEventListener("DOMContentLoaded", function () {
