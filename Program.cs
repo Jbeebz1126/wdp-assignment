@@ -37,14 +37,17 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Friendly error page for any unexpected error or missing page, in every environment,
+// so visitors never see a crash or a technical stack trace
+app.UseExceptionHandler("/Home/Error");
+app.UseStatusCodePagesWithReExecute("/Home/Error");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -64,31 +67,43 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-// --- Seed Admin role and admin account ---
+// Make sure the database is up to date, then seed the Admin role and account
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+    var logger = services.GetRequiredService<ILogger<Program>>();
 
-    if (!await roleManager.RoleExistsAsync("Admin"))
+    try
     {
-        await roleManager.CreateAsync(new IdentityRole("Admin"));
-    }
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
 
-    string adminEmail = "admin@asp.net";
-    string adminPassword = "Admin@123";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser == null)
-    {
-        adminUser = new IdentityUser
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+        if (!await roleManager.RoleExistsAsync("Admin"))
         {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true
-        };
-        await userManager.CreateAsync(adminUser, adminPassword);
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+        }
+
+        string adminEmail = "admin@asp.net";
+        string adminPassword = "Admin@123";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new IdentityUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+            await userManager.CreateAsync(adminUser, adminPassword);
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database setup or admin seeding failed.");
     }
 }
 

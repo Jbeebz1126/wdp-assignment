@@ -31,11 +31,20 @@ namespace WDP_Assignment.Controllers
         // GET: AIImages  (sorted by likes, highest first)
         public async Task<IActionResult> Index()
         {
-            var images = await _context.AIImages
-                .AsNoTracking()
-                .OrderByDescending(i => i.Like)
-                .ThenByDescending(i => i.UploadDate)
-                .ToListAsync();
+            List<AIImage> images;
+            try
+            {
+                images = await _context.AIImages
+                    .AsNoTracking()
+                    .OrderByDescending(i => i.Like)
+                    .ThenByDescending(i => i.UploadDate)
+                    .ToListAsync();
+            }
+            catch (Exception)
+            {
+                // If the database can't be read, show an empty list instead of crashing
+                images = new List<AIImage>();
+            }
 
             var liked = GetLikedIds();
             foreach (var img in images)
@@ -52,18 +61,25 @@ namespace WDP_Assignment.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Like(int id)
         {
-            var liked = GetLikedIds();
-            if (!liked.Contains(id))
+            try
             {
-                var image = await _context.AIImages.FindAsync(id);
-                if (image != null)
+                var liked = GetLikedIds();
+                if (!liked.Contains(id))
                 {
-                    image.Like++;
-                    await _context.SaveChangesAsync();
+                    var image = await _context.AIImages.FindAsync(id);
+                    if (image != null)
+                    {
+                        image.Like++;
+                        await _context.SaveChangesAsync();
 
-                    liked.Add(id);
-                    HttpContext.Session.SetString(LikedKey, string.Join(",", liked));
+                        liked.Add(id);
+                        HttpContext.Session.SetString(LikedKey, string.Join(",", liked));
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                // If the like can't be saved, return to the list without crashing
             }
 
             return RedirectToAction(nameof(Index), null, "img-" + id);
