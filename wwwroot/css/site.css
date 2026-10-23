@@ -491,3 +491,63 @@ main { padding: 0; }
 .error-text { color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1.1rem; }
 .error-text a { color: #f8bd08; }
 .error-ref { color: #ccc; font-size: 0.85rem; }
+
+/* --- Home: continuous parallax background behind the blocks --- */
+.ai-block,
+.upload-block {
+    background-color: #0b1d3a;               /* fallback if the image can't load */
+    background-image: url('/images/hero-bg.jpg');
+    background-attachment: fixed;            /* stays still while you scroll (parallax) */
+    background-size: cover;
+    background-position: center;
+}
+
+/* Fade in the block's content only, so the background never disappears */
+.reveal {
+    opacity: 1;
+    transform: none;
+}
+.reveal > * {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Text panel: thin border with a see-through dark backing, like the sample */
+.block-text {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 6px;
+    padding: 1.5vw;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+/* --- Home: each block has its own dimmed, blurred, fixed background --- */
+.ai-block,
+.upload-block {
+    position: relative;
+    isolation: isolate;              /* keeps the overlay behind the block's content */
+}
+
+/* One themed image per block */
+.bg-diagnostics { background-image: url('/images/aidoc.jpg'); }
+.bg-assistants  { background-image: url('/images/ada.jpg'); }
+.bg-predictive  { background-image: url('/images/tempus.jpg'); }
+.bg-upload      { background-image: url('/images/hero-bg.jpg'); }
+
+/* Dim + blur layer between the image and the content */
+.ai-block::before,
+.upload-block::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(11, 29, 58, 0.6);    /* dimness: 0.4 = brighter, 0.8 = darker */
+    backdrop-filter: blur(6px);           /* blur: higher = blurrier */
+    -webkit-backdrop-filter: blur(6px);
+}
+
+
