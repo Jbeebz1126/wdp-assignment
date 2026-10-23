@@ -183,7 +183,7 @@ namespace WDP_Assignment.Controllers
             var originalFilename = existing.Filename;
             ModelState.Remove(nameof(AIImage.Filename));
 
-            // A new image is optional when editing
+           
             ValidateUpload(ImageFile, required: false);
 
             if (!ModelState.IsValid)
